@@ -1,0 +1,221 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Name - Portfolio</title>
+  <meta name="description" content="Portfolio of Your Name, a Full Stack Developer">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100 text-gray-900 transition-colors duration-300" id="theme-body">
+  <!-- Header -->
+  <header class="fixed top-0 w-full bg-white shadow-md z-10" id="header">
+    <nav class="container mx-auto p-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Your Name</h1>
+      <div class="space-x-4">
+        <a href="#home" class="hover:text-blue-500 transition">Home</a>
+        <a href="#projects" class="hover:text-blue-500 transition">Projects</a>
+        <a href="#blog" class="hover:text-blue-500 transition">Blog</a>
+        <a href="#resume" class="hover:text-blue-500 transition">Resume</a>
+        <a href="#contact" class="hover:text-blue-500 transition">Contact</a>
+        <button
+          onclick="toggleTheme()"
+          class="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+          id="theme-toggle"
+        >
+          Dark Mode
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-20">
+    <!-- Hero Section -->
+    <section id="home" class="container mx-auto py-20 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to My Portfolio</h1>
+      <p class="text-lg md:text-xl mb-6">Full Stack Developer | AI Enthusiast</p>
+      <a
+        href="#projects"
+        class="inline-block bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition transform hover:scale-105"
+      >
+        View My Work
+      </a>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="container mx-auto py-10">
+      <h2 class="text-3xl font-bold text-center mb-8">Projects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Project Card 1 -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2">Project One</h3>
+          <p class="text-gray-600 mb-4">
+            A web app built with React and Node.js. Features user authentication and real-time updates.
+          </p>
+          <a href="#" class="text-blue-500 hover:underline">View Project</a>
+        </div>
+        <!-- Project Card 2 -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2">Project Two</h3>
+          <p class="text-gray-600 mb-4">
+            An AI-powered chatbot using Python and TensorFlow. Deployed on AWS.
+          </p>
+          <a href="#" class="text-blue-500 hover:underline">View Project</a>
+        </div>
+        <!-- Project Card 3 -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2">Project Three</h3>
+          <p class="text-gray-600 mb-4">
+            A portfolio site built with HTML and Tailwind CSS. Fully responsive.
+          </p>
+          <a href="#" class="text-blue-500 hover:underline">View Project</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section id="blog" class="container mx-auto py-10">
+      <h2 class="text-3xl font-bold text-center mb-8">Blog</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Blog Post 1 -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2">Building a Portfolio with HTML</h3>
+          <p class="text-gray-600 mb-4">
+            A guide to creating a modern portfolio using HTML and Tailwind CSS.
+          </p>
+          <a href="#" class="text-blue-500 hover:underline">Read More</a>
+        </div>
+        <!-- Blog Post 2 -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+          <h3 class="text-xl font-semibold mb-2">Introduction to AI with Python</h3>
+          <p class="text-gray-600 mb-4">
+            Learn the basics of AI and machine learning with Python and TensorFlow.
+          </p>
+          <a href="#" class="text-blue-500 hover:underline">Read More</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Resume Section -->
+    <section id="resume" class="container mx-auto py-10 text-center">
+      <h2 class="text-3xl font-bold mb-8">Resume</h2>
+      <p class="text-lg mb-6">
+        Download my resume to learn more about my experience and skills.
+      </p>
+      <a
+        href="./resume.pdf"
+        class="inline-block bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition transform hover:scale-105"
+      >
+        Download Resume
+      </a>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="container mx-auto py-10 text-center">
+      <h2 class="text-3xl font-bold mb-8">Get in Touch</h2>
+      <p class="text-lg mb-6">Feel free to reach out via email or follow me on social media.</p>
+      <div class="flex justify-center space-x-4">
+        <a href="#" class="text-blue-500 hover:underline">Email</a>
+        <a href="#" class="text-blue-500 hover:underline">LinkedIn</a>
+        <a href="#" class="text-blue-500 hover:underline">GitHub</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white p-4 text-center">
+    <p>© 2025 Your Name. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function toggleTheme() {
+      const body = document.getElementById('theme-body');
+      const header = document.getElementById('header');
+      const button = document.getElementById('theme-toggle');
+      const isDark = body.classList.toggle('dark');
+      body.classList.toggle('bg-gray-100', !isDark);
+      body.classList.toggle('bg-gray-900', isDark);
+      body.classList.toggle('text-gray-900', !isDark);
+      body.classList.toggle('text-white', isDark);
+      header.classList.toggle('bg-white', !isDark);
+      header.classList.toggle('bg-gray-800', isDark);
+      const projectCards = document.querySelectorAll('#projects > div > div');
+      projectCards.forEach(card => {
+        card.classList.toggle('bg-white', !isDark);
+        card.classList.toggle('bg-gray-800', isDark);
+        const p = card.querySelector('p');
+        p.classList.toggle('text-gray-600', !isDark);
+        p.classList.toggle('text-gray-300', isDark);
+      });
+      const blogCards = document.querySelectorAll('#blog > div > div');
+      blogCards.forEach(card => {
+        card.classList.toggle('bg-white', !isDark);
+        card.classList.toggle('bg-gray-800', isDark);
+        const p = card.querySelector('p');
+        p.classList.toggle('text-gray-600', !isDark);
+        p.classList.toggle('text-gray-300', isDark);
+      });
+      footer.classList.toggle('bg-white', !isDark);
+      footer.classList.toggle('bg-gray-800', isDark);
+      button.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    // Load theme from localStorage
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('theme') === 'dark') {
+        toggleTheme();
+      }
+    });
+  </script>
+</body>
+</html>
